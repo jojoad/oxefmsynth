@@ -54,6 +54,10 @@ private:
     float           pan[MIDICHANNELS]; // pan
     float           aft[MIDICHANNELS]; // aftertouch
     float           ptc[MIDICHANNELS]; // pitch wheel
+    int             pbc[MIDICHANNELS]; // pitch bend sensitivity, coarse
+    int             pbf[MIDICHANNELS]; // pitch bend sensitivity, fine
+    int            rpnh[MIDICHANNELS]; // RPN MSB
+    int            rpnl[MIDICHANNELS]; // RPN LSB
     int              activeNotesCount; // active notes count
     char                      revrbON; // reverb on
     char                      delayON; // delay on

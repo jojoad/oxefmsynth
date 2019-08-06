@@ -45,6 +45,9 @@ CSynthesizer::CSynthesizer()
         aft[i] = 0.0f;
         ptc[i] = 1.0f;
         hld[i] = 0;
+        pbc[i] = VPITCH;
+        pbf[i] = 0;
+        rpnh[i] = rpnl[i] = 0x7F;
     }
     programs.Init();
     reverb.Init();
@@ -344,6 +347,34 @@ void CSynthesizer::SendEvent(unsigned char bS,unsigned char bD1,unsigned char bD
                 case 127: // Poly Mode On
                     AllNotesOff(position);
                     break;
+                case 100: // RPN LSB
+                    rpnl[channel] = bD2;
+                    break;
+                case 101: // RPN MSB
+                    rpnh[channel] = bD2;
+                    break;
+                case 6: // Data entry MSB
+                    if (rpnh[channel] != 0) break;
+                    switch(rpnl[channel])
+                    {
+                        case 0:  // Pitch bend sensitivity (semitones)
+                            pbc[channel] = bD2;
+                            break;
+                        default:
+                            break;
+                    }
+                case 38: // Data entry LSB
+                    if (rpnh[channel] != 0) break;
+                    switch(rpnl[channel])
+                    {
+                        case 0:  // Pitch bend sensitivity (cents)
+                            pbf[channel] = bD2;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -381,7 +412,7 @@ void CSynthesizer::SendEvent(unsigned char bS,unsigned char bD1,unsigned char bD
             _14bit <<= 7;
             _14bit  |= (unsigned short)bD1;
             f  = (float(_14bit) / 8192.0f) - 1.0f;
-            f *= VPITCH;
+            f *= pbc[channel] + pbf[channel]/100.f;
             f  = Val2Mul(f);
             ptc[channel] = f;
             for (i=0; i<POLIPHONY; i++)
